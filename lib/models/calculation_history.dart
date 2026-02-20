@@ -1,4 +1,3 @@
-// lib/models/calculation_history.dart
 class CalculationHistory {
   final int? id;
   final double a;
