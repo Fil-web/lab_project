@@ -78,4 +78,8 @@ test/.test_runner_cache/
 *.map
 *.js.map
 *.js
-*.dart.js
+*.dart.jsios/
+macos/
+linux/
+windows/
+web/
