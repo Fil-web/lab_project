@@ -20,7 +20,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// ============= МОДЕЛЬ =============
 class CalculationHistory {
   final int? id;
   final double a;
@@ -77,7 +76,6 @@ class CalculationHistory {
   }
 }
 
-// ============= ХРАНИЛИЩЕ =============
 class DatabaseProvider {
   static final DatabaseProvider instance = DatabaseProvider._init();
   DatabaseProvider._init();
@@ -112,7 +110,6 @@ class DatabaseProvider {
   }
 }
 
-// ============= CUBIT для уравнения =============
 abstract class QuadraticState {}
 
 class QuadraticInitialState extends QuadraticState {}
@@ -179,40 +176,67 @@ class QuadraticCubit extends Cubit<QuadraticState> {
           final x1 = (-b + sqrt(d)) / (2 * a);
           final x2 = (-b - sqrt(d)) / (2 * a);
           history = CalculationHistory(
-            a: a, b: b, c: c, equation: eq, discriminant: d.toStringAsFixed(2),
-            message: 'Два различных корня', roots: [x1.toStringAsFixed(4), x2.toStringAsFixed(4)],
-            type: 'two_roots', timestamp: DateTime.now(),
+            a: a,
+            b: b,
+            c: c,
+            equation: eq,
+            discriminant: d.toStringAsFixed(2),
+            message: 'Два различных корня',
+            roots: [x1.toStringAsFixed(4), x2.toStringAsFixed(4)],
+            type: 'two_roots',
+            timestamp: DateTime.now(),
           );
           await DatabaseProvider.instance.insertCalculation(history);
           emit(QuadraticResultState(
-            equation: eq, discriminant: d.toStringAsFixed(2),
-            message: 'Два различных корня', roots: [x1.toStringAsFixed(4), x2.toStringAsFixed(4)],
-            type: 'two_roots', calculationHistory: history,
+            equation: eq,
+            discriminant: d.toStringAsFixed(2),
+            message: 'Два различных корня',
+            roots: [x1.toStringAsFixed(4), x2.toStringAsFixed(4)],
+            type: 'two_roots',
+            calculationHistory: history,
           ));
         } else if (d == 0) {
           final x = -b / (2 * a);
           history = CalculationHistory(
-            a: a, b: b, c: c, equation: eq, discriminant: d.toStringAsFixed(2),
-            message: 'Один корень', roots: [x.toStringAsFixed(4)],
-            type: 'one_root', timestamp: DateTime.now(),
+            a: a,
+            b: b,
+            c: c,
+            equation: eq,
+            discriminant: d.toStringAsFixed(2),
+            message: 'Один корень',
+            roots: [x.toStringAsFixed(4)],
+            type: 'one_root',
+            timestamp: DateTime.now(),
           );
           await DatabaseProvider.instance.insertCalculation(history);
           emit(QuadraticResultState(
-            equation: eq, discriminant: d.toStringAsFixed(2),
-            message: 'Один корень', roots: [x.toStringAsFixed(4)],
-            type: 'one_root', calculationHistory: history,
+            equation: eq,
+            discriminant: d.toStringAsFixed(2),
+            message: 'Один корень',
+            roots: [x.toStringAsFixed(4)],
+            type: 'one_root',
+            calculationHistory: history,
           ));
         } else {
           history = CalculationHistory(
-            a: a, b: b, c: c, equation: eq, discriminant: d.toStringAsFixed(2),
-            message: 'Нет действительных корней', roots: [],
-            type: 'no_roots', timestamp: DateTime.now(),
+            a: a,
+            b: b,
+            c: c,
+            equation: eq,
+            discriminant: d.toStringAsFixed(2),
+            message: 'Нет действительных корней',
+            roots: [],
+            type: 'no_roots',
+            timestamp: DateTime.now(),
           );
           await DatabaseProvider.instance.insertCalculation(history);
           emit(QuadraticResultState(
-            equation: eq, discriminant: d.toStringAsFixed(2),
-            message: 'Нет действительных корней', roots: [],
-            type: 'no_roots', calculationHistory: history,
+            equation: eq,
+            discriminant: d.toStringAsFixed(2),
+            message: 'Нет действительных корней',
+            roots: [],
+            type: 'no_roots',
+            calculationHistory: history,
           ));
         }
       } catch (e) {
@@ -224,7 +248,6 @@ class QuadraticCubit extends Cubit<QuadraticState> {
   void reset() => emit(QuadraticInitialState());
 }
 
-// ============= CUBIT для истории =============
 abstract class HistoryState {}
 
 class HistoryInitialState extends HistoryState {}
@@ -265,14 +288,14 @@ class HistoryCubit extends Cubit<HistoryState> {
   }
 }
 
-// ============= ГЛАВНЫЙ ЭКРАН =============
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Лабораторная работа'), centerTitle: true),
+      appBar:
+          AppBar(title: const Text('Лабораторная работа'), centerTitle: true),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -309,7 +332,6 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// ============= ЭКРАН КАЛЬКУЛЯТОРА =============
 class QuadraticScreen extends StatefulWidget {
   const QuadraticScreen({super.key});
 
@@ -409,7 +431,8 @@ class _QuadraticScreenState extends State<QuadraticScreen> {
                       const SizedBox(width: 10),
                       ElevatedButton(
                         onPressed: _reset,
-                        style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.grey),
                         child: const Text('Сброс'),
                       ),
                     ],
@@ -418,13 +441,16 @@ class _QuadraticScreenState extends State<QuadraticScreen> {
                   if (state is QuadraticLoadingState)
                     const Center(child: CircularProgressIndicator())
                   else if (state is QuadraticErrorState)
-                    Text(state.errorMessage, style: const TextStyle(color: Colors.red))
+                    Text(state.errorMessage,
+                        style: const TextStyle(color: Colors.red))
                   else if (state is QuadraticResultState) ...[
-                    Text(state.equation, style: const TextStyle(fontWeight: FontWeight.bold)),
+                    Text(state.equation,
+                        style: const TextStyle(fontWeight: FontWeight.bold)),
                     Text('D = ${state.discriminant}'),
                     Text(state.message,
                         style: TextStyle(
-                            color: state.roots.isEmpty ? Colors.red : Colors.green,
+                            color:
+                                state.roots.isEmpty ? Colors.red : Colors.green,
                             fontWeight: FontWeight.bold)),
                     if (state.roots.isNotEmpty) ...[
                       const SizedBox(height: 10),
@@ -449,7 +475,6 @@ class _QuadraticScreenState extends State<QuadraticScreen> {
   }
 }
 
-// ============= ЭКРАН ИСТОРИИ =============
 class HistoryScreen extends StatelessWidget {
   const HistoryScreen({super.key});
 
@@ -461,7 +486,8 @@ class HistoryScreen extends StatelessWidget {
         actions: [
           BlocBuilder<HistoryCubit, HistoryState>(
             builder: (context, state) {
-              if (state is HistoryLoadedState && state.calculations.isNotEmpty) {
+              if (state is HistoryLoadedState &&
+                  state.calculations.isNotEmpty) {
                 return IconButton(
                   icon: const Icon(Icons.delete_sweep),
                   onPressed: () => _showClearDialog(context),
@@ -497,9 +523,11 @@ class HistoryScreen extends StatelessWidget {
                       children: [
                         Text('D = ${h.discriminant}'),
                         Text(h.message),
-                        if (h.roots.isNotEmpty) Text('Корни: ${h.roots.join(' ; ')}'),
+                        if (h.roots.isNotEmpty)
+                          Text('Корни: ${h.roots.join(' ; ')}'),
                         Text(_formatDate(h.timestamp),
-                            style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                            style: const TextStyle(
+                                fontSize: 12, color: Colors.grey)),
                       ],
                     ),
                     trailing: IconButton(
@@ -523,7 +551,9 @@ class HistoryScreen extends StatelessWidget {
       builder: (_) => AlertDialog(
         title: const Text('Удалить запись?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Отмена')),
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Отмена')),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
@@ -543,7 +573,9 @@ class HistoryScreen extends StatelessWidget {
         title: const Text('Очистить историю?'),
         content: const Text('Все записи будут удалены'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Отмена')),
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Отмена')),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
