@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
+import 'models/calculation_history.dart';
+import 'database/database_provider.dart';
 
 void main() => runApp(const MyApp());
 
@@ -20,92 +21,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// ---------- Модель ----------
-class CalculationHistory {
-  final int? id;
-  final double a, b, c;
-  final String equation, discriminant, message;
-  final List<String> roots;
-  final String type;
-  final DateTime timestamp;
-
-  CalculationHistory({
-    this.id,
-    required this.a,
-    required this.b,
-    required this.c,
-    required this.equation,
-    required this.discriminant,
-    required this.message,
-    required this.roots,
-    required this.type,
-    required this.timestamp,
-  });
-
-  Map<String, dynamic> toMap() => {
-        'id': id,
-        'a': a,
-        'b': b,
-        'c': c,
-        'equation': equation,
-        'discriminant': discriminant,
-        'message': message,
-        'roots': roots.join('|'),
-        'type': type,
-        'timestamp': timestamp.toIso8601String(),
-      };
-
-  factory CalculationHistory.fromMap(Map<String, dynamic> map) =>
-      CalculationHistory(
-        id: map['id'],
-        a: map['a'],
-        b: map['b'],
-        c: map['c'],
-        equation: map['equation'],
-        discriminant: map['discriminant'],
-        message: map['message'],
-        roots: (map['roots'] as String).split('|'),
-        type: map['type'],
-        timestamp: DateTime.parse(map['timestamp']),
-      );
-}
-
-// ---------- Хранилище на SharedPreferences ----------
-class DatabaseProvider {
-  static final DatabaseProvider instance = DatabaseProvider._init();
-  DatabaseProvider._init();
-
-  Future<void> insertCalculation(CalculationHistory calc) async {
-    final prefs = await SharedPreferences.getInstance();
-    final list = await getAllCalculations();
-    list.insert(0, calc);
-    final jsonList = list.map((c) => c.toMap()).toList();
-    await prefs.setString('history', json.encode(jsonList));
-  }
-
-  Future<List<CalculationHistory>> getAllCalculations() async {
-    final prefs = await SharedPreferences.getInstance();
-    final String? data = prefs.getString('history');
-    if (data == null || data.isEmpty) return [];
-    final List decoded = json.decode(data);
-    return decoded.map((e) => CalculationHistory.fromMap(e)).toList();
-  }
-
-  Future<void> deleteCalculation(int id) async {
-    final prefs = await SharedPreferences.getInstance();
-    final list = await getAllCalculations();
-    list.removeWhere((c) => c.id == id);
-    final jsonList = list.map((c) => c.toMap()).toList();
-    await prefs.setString('history', json.encode(jsonList));
-  }
-
-  Future<void> clearAllCalculations() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('history');
-  }
-}
-
-// ---------- Состояния и Cubit для квадратного уравнения ----------
 abstract class QuadraticState {}
 
 class QuadraticInitialState extends QuadraticState {}
@@ -163,8 +78,7 @@ class QuadraticCubit extends Cubit<QuadraticState> {
         }
 
         final d = b * b - 4 * a * c;
-        final eq =
-            '${a.toStringAsFixed(2)}x² ${b >= 0 ? '+' : ''}${b.toStringAsFixed(2)}x ${c >= 0 ? '+' : ''}${c.toStringAsFixed(2)} = 0';
+        final eq = '${a.toStringAsFixed(2)}x² ${b >= 0 ? '+' : ''}${b.toStringAsFixed(2)}x ${c >= 0 ? '+' : ''}${c.toStringAsFixed(2)} = 0';
 
         CalculationHistory? history;
 
@@ -217,7 +131,6 @@ class QuadraticCubit extends Cubit<QuadraticState> {
   void reset() => emit(QuadraticInitialState());
 }
 
-// ---------- Состояния и Cubit для истории ----------
 abstract class HistoryState {}
 
 class HistoryInitialState extends HistoryState {}
@@ -258,7 +171,6 @@ class HistoryCubit extends Cubit<HistoryState> {
   }
 }
 
-// ---------- Главный экран ----------
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -302,7 +214,6 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// ---------- Экран калькулятора ----------
 class QuadraticScreen extends StatefulWidget {
   const QuadraticScreen({super.key});
 
@@ -442,7 +353,6 @@ class _QuadraticScreenState extends State<QuadraticScreen> {
   }
 }
 
-// ---------- Экран истории ----------
 class HistoryScreen extends StatelessWidget {
   const HistoryScreen({super.key});
 
