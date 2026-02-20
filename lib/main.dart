@@ -20,11 +20,15 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// ---------- Модель ----------
+// ============= МОДЕЛЬ =============
 class CalculationHistory {
   final int? id;
-  final double a, b, c;
-  final String equation, discriminant, message;
+  final double a;
+  final double b;
+  final double c;
+  final String equation;
+  final String discriminant;
+  final String message;
   final List<String> roots;
   final String type;
   final DateTime timestamp;
@@ -42,35 +46,38 @@ class CalculationHistory {
     required this.timestamp,
   });
 
-  Map<String, dynamic> toMap() => {
-        'id': id,
-        'a': a,
-        'b': b,
-        'c': c,
-        'equation': equation,
-        'discriminant': discriminant,
-        'message': message,
-        'roots': roots.join('|'),
-        'type': type,
-        'timestamp': timestamp.toIso8601String(),
-      };
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'a': a,
+      'b': b,
+      'c': c,
+      'equation': equation,
+      'discriminant': discriminant,
+      'message': message,
+      'roots': roots.join('|'),
+      'type': type,
+      'timestamp': timestamp.toIso8601String(),
+    };
+  }
 
-  factory CalculationHistory.fromMap(Map<String, dynamic> map) =>
-      CalculationHistory(
-        id: map['id'],
-        a: map['a'],
-        b: map['b'],
-        c: map['c'],
-        equation: map['equation'],
-        discriminant: map['discriminant'],
-        message: map['message'],
-        roots: (map['roots'] as String).split('|'),
-        type: map['type'],
-        timestamp: DateTime.parse(map['timestamp']),
-      );
+  factory CalculationHistory.fromMap(Map<String, dynamic> map) {
+    return CalculationHistory(
+      id: map['id'],
+      a: map['a'],
+      b: map['b'],
+      c: map['c'],
+      equation: map['equation'],
+      discriminant: map['discriminant'],
+      message: map['message'],
+      roots: (map['roots'] as String).split('|'),
+      type: map['type'],
+      timestamp: DateTime.parse(map['timestamp']),
+    );
+  }
 }
 
-// ---------- Хранилище на SharedPreferences ----------
+// ============= ХРАНИЛИЩЕ =============
 class DatabaseProvider {
   static final DatabaseProvider instance = DatabaseProvider._init();
   DatabaseProvider._init();
@@ -105,7 +112,7 @@ class DatabaseProvider {
   }
 }
 
-// ---------- Состояния и Cubit для квадратного уравнения ----------
+// ============= CUBIT для уравнения =============
 abstract class QuadraticState {}
 
 class QuadraticInitialState extends QuadraticState {}
@@ -217,7 +224,7 @@ class QuadraticCubit extends Cubit<QuadraticState> {
   void reset() => emit(QuadraticInitialState());
 }
 
-// ---------- Состояния и Cubit для истории ----------
+// ============= CUBIT для истории =============
 abstract class HistoryState {}
 
 class HistoryInitialState extends HistoryState {}
@@ -258,7 +265,7 @@ class HistoryCubit extends Cubit<HistoryState> {
   }
 }
 
-// ---------- Главный экран ----------
+// ============= ГЛАВНЫЙ ЭКРАН =============
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -302,7 +309,7 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// ---------- Экран калькулятора ----------
+// ============= ЭКРАН КАЛЬКУЛЯТОРА =============
 class QuadraticScreen extends StatefulWidget {
   const QuadraticScreen({super.key});
 
@@ -442,7 +449,7 @@ class _QuadraticScreenState extends State<QuadraticScreen> {
   }
 }
 
-// ---------- Экран истории ----------
+// ============= ЭКРАН ИСТОРИИ =============
 class HistoryScreen extends StatelessWidget {
   const HistoryScreen({super.key});
 
